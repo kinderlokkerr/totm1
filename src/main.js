@@ -35,33 +35,40 @@ function draw() {
   drawCoins();
   drawPowerUps();
   drawEnemies();
+  player.update();
   player.show();
   displayScore();
   displayLevel();
 }
 
 function keyPressed() {
-  if (keyCode === UP_ARROW) player.move(0, -1);
-  if (keyCode === DOWN_ARROW) player.move(0, 1);
-  if (keyCode === LEFT_ARROW) player.move(-1, 0);
-  if (keyCode === RIGHT_ARROW) player.move(1, 0);
+  if (keyCode === UP_ARROW) player.setDirection(0, -1);
+  if (keyCode === DOWN_ARROW) player.setDirection(0, 1);
+  if (keyCode === LEFT_ARROW) player.setDirection(-1, 0);
+  if (keyCode === RIGHT_ARROW) player.setDirection(1, 0);
 }
 
 class Player {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+    this.dx = 0;
+    this.dy = 0;
   }
 
-  move(dx, dy) {
-    while (!isWall(this.x + dx, this.y + dy)) {
-      this.x += dx;
-      this.y += dy;
+  setDirection(dx, dy) {
+    this.dx = dx;
+    this.dy = dy;
+  }
+
+  update() {
+    while (!isWall(this.x + this.dx, this.y + this.dy)) {
+      this.x += this.dx;
+      this.y += this.dy;
       checkCoinCollision();
       checkPowerUpCollision();
       checkEnemyCollision();
     }
-    checkLevelCompletion();
   }
 
   show() {
