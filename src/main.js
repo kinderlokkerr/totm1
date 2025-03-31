@@ -54,14 +54,14 @@ class Player {
   }
 
   move(dx, dy) {
-    if (!isWall(this.x + dx, this.y + dy)) {
+    while (!isWall(this.x + dx, this.y + dy)) {
       this.x += dx;
       this.y += dy;
       checkCoinCollision();
       checkPowerUpCollision();
       checkEnemyCollision();
-      checkLevelCompletion();
     }
+    checkLevelCompletion();
   }
 
   show() {
