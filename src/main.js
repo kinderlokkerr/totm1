@@ -14,6 +14,14 @@ function setup() {
   cols = width / gridSize;
   rows = height / gridSize;
   bgColor = color(20, 20, 40);
+  resetGame();
+}
+
+function resetGame() {
+  walls = [];
+  coins = [];
+  enemies = [];
+  powerUps = [];
   player = new Player(1, 1);
   generateMaze();
   generateCoins();
@@ -28,7 +36,6 @@ function draw() {
   drawPowerUps();
   drawEnemies();
   player.show();
-  checkCollisions();
   displayScore();
   displayLevel();
 }
@@ -47,7 +54,7 @@ class Player {
   }
 
   move(dx, dy) {
-    while (!isWall(this.x + dx, this.y + dy)) {
+    if (!isWall(this.x + dx, this.y + dy)) {
       this.x += dx;
       this.y += dy;
       checkCoinCollision();
@@ -64,7 +71,6 @@ class Player {
 }
 
 function generateMaze() {
-  walls = [];
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
       if (random() < 0.3 || i === 0 || j === 0 || i === cols - 1 || j === rows - 1) {
@@ -86,7 +92,6 @@ function isWall(x, y) {
 }
 
 function generateCoins() {
-  coins = [];
   for (let i = 2; i < cols - 2; i++) {
     for (let j = 2; j < rows - 2; j++) {
       if (!isWall(i, j) && random() < 0.1) {
@@ -114,7 +119,6 @@ function checkCoinCollision() {
 }
 
 function generatePowerUps() {
-  powerUps = [];
   if (random() < 0.5) {
     let x = floor(random(1, cols - 1));
     let y = floor(random(1, rows - 1));
@@ -140,7 +144,6 @@ function checkPowerUpCollision() {
 }
 
 function generateEnemies() {
-  enemies = [];
   for (let i = 2; i < cols - 2; i++) {
     for (let j = 2; j < rows - 2; j++) {
       if (!isWall(i, j) && random() < 0.05) {
@@ -182,7 +185,7 @@ function drawEnemies() {
 function checkLevelCompletion() {
   if (coins.length === 0) {
     level++;
-    setup();
+    resetGame();
   }
 }
 
