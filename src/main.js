@@ -41,10 +41,10 @@ function draw() {
 }
 
 function keyPressed() {
-  if (keyCode === UP_ARROW) player.move(0, -1);
-  if (keyCode === DOWN_ARROW) player.move(0, 1);
-  if (keyCode === LEFT_ARROW) player.move(-1, 0);
-  if (keyCode === RIGHT_ARROW) player.move(1, 0);
+  if (key === UP_ARROW) player.move(0, -1);
+  if (key === DOWN_ARROW) player.move(0, 1);
+  if (key === LEFT_ARROW) player.move(-1, 0);
+  if (key === RIGHT_ARROW) player.move(1, 0);
 }
 
 class Player {
