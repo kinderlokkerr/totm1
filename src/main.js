@@ -11,16 +11,21 @@ let walls = [];
 let level = 1;
 let score = 0;
 let gameState = "playing"; // can be "playing", "won", "gameover"
-let playerColor;
+let playerImg;
 let bgColor;
 let wallColor;
 let coinColor;
 let enemyColor;
 
+function preload () {
+    PlayerImage= loadImage('/WebstormProjects/untitled/player.png');
+}
+
+
 function setup() {
     createCanvas(600, 600);
     tileSize = width / gridSize;
-    playerColor = color(255, 215, 0); // Gold
+   // playerColor = color(255, 215, 0); // Gold
     bgColor = color(30, 30, 40); // Dark blue-gray
     wallColor = color(70, 70, 90); // Gray-blue
     coinColor = color(255, 255, 100); // Light yellow
@@ -28,6 +33,7 @@ function setup() {
 
     resetGame();
 }
+
 
 function resetGame() {
     // Create player at center
@@ -37,7 +43,7 @@ function resetGame() {
         speed: 10,
         moveDir: {x: 0, y: 0},
         lastMove: 0,
-        moveDelay: 10 // milliseconds between moves
+        moveDelay: 25 // milliseconds between moves
     };
 
     // Generate level
@@ -62,7 +68,7 @@ function generateLevel() {
     }
 
     // Add random walls
-    for (let i = 0; i < level * 20; i++) {
+    for (let i = 0; i < level * 50; i++) {
         let x = floor(random(2, gridSize-2));
         let y = floor(random(2, gridSize-2));
 
@@ -142,13 +148,16 @@ function draw() {
 
     // Draw player
     fill(playerColor);
-    rect(
-        player.x * tileSize + tileSize * 0.1,
-        player.y * tileSize + tileSize * 0.1,
-        tileSize * 0.8,
-        tileSize * 0.8,
-        5
-    );
+    if (playerImg) {
+        imageMode(CENTER);
+        image(
+            playerImg,
+            player.x * tileSize + tileSize / 2,
+            player.y * tileSize + tileSize / 2,
+            tileSize * 0.8,
+            tileSize * 0.8
+        );
+    }
 
     // Update and move entities
     if (gameState === "playing") {
