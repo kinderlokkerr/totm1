@@ -11,16 +11,39 @@ let walls = [];
 let level = 1;
 let score = 0;
 let gameState = "playing"; // can be "playing", "won", "gameover"
-let playerColor;
+let playerImg;
 let bgColor;
 let wallColor;
 let coinColor;
 let enemyColor;
+let imageLoaded = false;
+
+function preload() {
+    playerImg = loadImage(
+        'player.png',
+        () => {
+            console.log("Player image loaded successfully");
+            imageLoaded = true;
+        },
+        () => {
+            console.error("Failed to load player image");
+            imageLoaded = false;
+        }
+    );
+}
 
 function setup() {
     createCanvas(600, 600);
+
+    // Debug image loading
+    console.log("Player image status:", playerImg);
+    if (playerImg) {
+        console.log("Image dimensions:", playerImg.width, "x", playerImg.height);
+    } else {
+        console.error("Player image not loaded");
+    }
+
     tileSize = width / gridSize;
-    playerColor = color(255, 215, 0); // Gold
     bgColor = color(30, 30, 40); // Dark blue-gray
     wallColor = color(70, 70, 90); // Gray-blue
     coinColor = color(255, 255, 100); // Light yellow
@@ -37,7 +60,7 @@ function resetGame() {
         speed: 10,
         moveDir: {x: 0, y: 0},
         lastMove: 0,
-        moveDelay: 10 // milliseconds between moves
+        moveDelay: 25 // milliseconds between moves
     };
 
     // Generate level
@@ -62,7 +85,7 @@ function generateLevel() {
     }
 
     // Add random walls
-    for (let i = 0; i < level * 20; i++) {
+    for (let i = 0; i < level * 50; i++) {
         let x = floor(random(2, gridSize-2));
         let y = floor(random(2, gridSize-2));
 
@@ -140,15 +163,24 @@ function draw() {
         );
     }
 
-    // Draw player
-    fill(playerColor);
-    rect(
-        player.x * tileSize + tileSize * 0.1,
-        player.y * tileSize + tileSize * 0.1,
-        tileSize * 0.8,
-        tileSize * 0.8,
-        5
-    );
+    // Draw player with improved image loading check
+    if (imageLoaded && playerImg && playerImg.width > 0) {
+        try {
+            imageMode(CENTER);
+            image(
+                playerImg,
+                player.x * tileSize + tileSize / 2,
+                player.y * tileSize + tileSize / 2,
+                tileSize * 0.8,
+                tileSize * 0.8
+            );
+        } catch (e) {
+            console.error("Error drawing player image:", e);
+            drawPlayerFallback();
+        }
+    } else {
+        drawPlayerFallback();
+    }
 
     // Update and move entities
     if (gameState === "playing") {
@@ -166,6 +198,18 @@ function draw() {
     } else if (gameState === "won") {
         drawWinScreen();
     }
+}
+
+function drawPlayerFallback() {
+    console.log("Using fallback player drawing");
+    fill(255, 215, 0); // Gold color
+    rect(
+        player.x * tileSize + tileSize * 0.1,
+        player.y * tileSize + tileSize * 0.1,
+        tileSize * 0.8,
+        tileSize * 0.8,
+        5
+    );
 }
 
 function updatePlayer() {
@@ -320,7 +364,7 @@ function drawWinScreen() {
     textSize(24);
     text(`Final Score: ${score}`, width/2, height/2 + 20);
 
-    // Restart instructions bluh  bluh
+    // Restart instructions
     textSize(18);
     text("Press R to restart", width/2, height/2 + 60);
 }
