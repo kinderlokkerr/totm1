@@ -1,261 +1,326 @@
-// Globale variabelen
-let speler;
-let vijanden = [];
-let doolhof = [];
-let tegelGrootte = 40;
+
+// Tomb of the Mask Inspired Game
+// p5.js code for beginners with some advanced elements
+
+let player;
+let gridSize = 20;
+let tileSize;
+let coins = [];
+let enemies = [];
+let walls = [];
+let level = 1;
 let score = 0;
-let spelActief = false;
-let doelPositie;
-
-// Kleuren
-const kleuren = {
-  muur: '#2c3e50',
-  pad: '#34495e',
-  speler: '#f1c40f',
-  vijand: '#e74c3c',
-  doel: '#2ecc71',
-  tekst: '#ecf0f1'
-};
-
-// Doolhof afmetingen
-const doolhofBreedte = 20;
-const doolhofHoogte = 15;
+let gameState = "playing"; // can be "playing", "won", "gameover"
+let playerColor;
+let bgColor;
+let wallColor;
+let coinColor;
+let enemyColor;
 
 function setup() {
-  createCanvas(800, 600);
-  initialiseerSpel();
+    createCanvas(600, 600);
+    tileSize = width / gridSize;
+    playerColor = color(255, 215, 0); // Gold
+    bgColor = color(30, 30, 40); // Dark blue-gray
+    wallColor = color(70, 70, 90); // Gray-blue
+    coinColor = color(255, 255, 100); // Light yellow
+    enemyColor = color(255, 50, 50); // Red
+
+    resetGame();
 }
 
-function initialiseerSpel() {
-  // Initialiseer speler
-  speler = {
-    x: 1,
-    y: 1,
-    grootte: 30
-  };
-  
-  // Genereer doolhof
-  genereerDoolhof(doolhofBreedte, doolhofHoogte);
-  
-  // Plaats vijanden
-  plaatsVijanden(5);
-  
-  // Plaats doel
-  plaatsDoel();
-  
-  // Reset score
-  score = 0;
-  
-  // Start spel
-  spelActief = true;
+function resetGame() {
+    // Create player at center
+    player = {
+        x: Math.floor(gridSize / 2),
+        y: Math.floor(gridSize / 2),
+        speed: 1,
+        moveDir: {x: 0, y: 0},
+        lastMove: 0,
+        moveDelay: 100 // milliseconds between moves
+    };
+
+    // Generate level
+    generateLevel();
+
+    // Reset game state
+    gameState = "playing";
 }
 
-function genereerDoolhof(breedte, hoogte) {
-  // Initialiseer doolhof met muren
-  doolhof = Array(hoogte).fill().map(() => Array(breedte).fill(1));
-  
-  // Startpositie voor generatie
-  let x = 1;
-  let y = 1;
-  doolhof[y][x] = 0;
-  
-  // Recursieve functie om doolhof te graven
-  function graven(x, y) {
-    const richtingen = ['noord', 'oost', 'zuid', 'west'];
-    // Schud de richtingen voor willekeurigheid
-    shuffle(richtingen, true);
-    
-    for (const richting of richtingen) {
-      let nx = x, ny = y;
-      
-      switch (richting) {
-        case 'noord': ny = y - 2; break;
-        case 'oost': nx = x + 2; break;
-        case 'zuid': ny = y + 2; break;
-        case 'west': nx = x - 2; break;
-      }
-      
-      // Controleer of nieuwe positie binnen grenzen is en nog muur is
-      if (nx > 0 && nx < breedte - 1 && ny > 0 && ny < hoogte - 1 && doolhof[ny][nx] === 1) {
-        // Verwijder muur tussen huidige en nieuwe cel
-        doolhof[ny][nx] = 0;
-        doolhof[y + (ny - y) / 2][x + (nx - x) / 2] = 0;
-        
-        // Ga verder vanaf nieuwe positie
-        graven(nx, ny);
-      }
+function generateLevel() {
+    // Clear previous level
+    walls = [];
+    coins = [];
+    enemies = [];
+
+    // Create border walls
+    for (let i = 0; i < gridSize; i++) {
+        walls.push({x: i, y: 0});
+        walls.push({x: i, y: gridSize-1});
+        walls.push({x: 0, y: i});
+        walls.push({x: gridSize-1, y: i});
     }
-  }
-  
-  graven(x, y);
-  
-  // Zet speler op startpositie
-  speler.x = 1;
-  speler.y = 1;
-}
 
-function plaatsVijanden(aantal) {
-  vijanden = [];
-  for (let i = 0; i < aantal; i++) {
-    let x, y;
-    // Zoek een willekeurig pad dat geen muur is
-    do {
-      x = floor(random(1, doolhof[0].length - 1));
-      y = floor(random(1, doolhof.length - 1));
-    } while (doolhof[y][x] === 1 || (x === speler.x && y === speler.y));
-    
-    vijanden.push({
-      x: x,
-      y: y,
-      richting: random(['horizontaal', 'verticaal']),
-      beweging: random([-1, 1]),
-      grootte: 30
-    });
-  }
-}
+    // Add random walls
+    for (let i = 0; i < level * 20; i++) {
+        let x = floor(random(2, gridSize-2));
+        let y = floor(random(2, gridSize-2));
 
-function plaatsDoel() {
-  let x, y;
-  // Zoek een positie ver van de speler
-  do {
-    x = floor(random(1, doolhof[0].length - 1));
-    y = floor(random(1, doolhof.length - 1));
-  } while (doolhof[y][x] === 1 || (abs(x - speler.x) + abs(y - speler.y)) < 10);
-  
-  doelPositie = { x: x, y: y };
-}
-
-function beweegVijanden() {
-  for (let vijand of vijanden) {
-    // Beweeg vijand volgens zijn richting
-    if (vijand.richting === 'horizontaal') {
-      const nieuweX = vijand.x + vijand.beweging;
-      if (doolhof[vijand.y][nieuweX] !== 1) {
-        vijand.x = nieuweX;
-      } else {
-        vijand.beweging *= -1; // Keer om
-      }
-    } else { // verticaal
-      const nieuweY = vijand.y + vijand.beweging;
-      if (doolhof[nieuweY][vijand.x] !== 1) {
-        vijand.y = nieuweY;
-      } else {
-        vijand.beweging *= -1; // Keer om
-      }
+        // Don't place walls on player or next to player
+        if (!(abs(x - player.x) <= 1 && abs(y - player.y) <= 1)) {
+            walls.push({x: x, y: y});
+        }
     }
-  }
-}
 
-function keyPressed() {
-  if (!spelActief) return;
-  
-  let nieuweX = speler.x;
-  let nieuweY = speler.y;
-  
-  switch (keyCode) {
-    case UP_ARROW: nieuweY--; break;
-    case RIGHT_ARROW: nieuweX++; break;
-    case DOWN_ARROW: nieuweY++; break;
-    case LEFT_ARROW: nieuweX--; break;
-  }
-  
-  // Controleer of nieuwe positie geldig is
-  if (doolhof[nieuweY] && doolhof[nieuweY][nieuweX] !== 1) {
-    speler.x = nieuweX;
-    speler.y = nieuweY;
-    score++;
-    
-    // Controleer of speler het doel heeft bereikt
-    if (nieuweX === doelPositie.x && nieuweY === doelPositie.y) {
-      spelActief = false;
-      setTimeout(() => {
-        alert(`Gefeliciteerd! Je hebt het level voltooid met ${score} stappen.`);
-        initialiseerSpel(); // Start nieuw level
-      }, 100);
+    // Add coins
+    for (let i = 0; i < level * 5; i++) {
+        let x, y;
+        do {
+            x = floor(random(1, gridSize-1));
+            y = floor(random(1, gridSize-1));
+        } while (isWall(x, y) || (x === player.x && y === player.y));
+
+        coins.push({x: x, y: y, value: 10});
     }
-    
-    // Controleer botsing met vijanden
-    for (let vijand of vijanden) {
-      if (vijand.x === speler.x && vijand.y === speler.y) {
-        spelActief = false;
-        setTimeout(() => {
-          alert(`Game Over! Je score was: ${score}`);
-          initialiseerSpel();
-        }, 100);
-        break;
-      }
+
+    // Add enemies
+    for (let i = 0; i < level; i++) {
+        let x, y;
+        do {
+            x = floor(random(1, gridSize-1));
+            y = floor(random(1, gridSize-1));
+        } while (isWall(x, y) || (dist(x, y, player.x, player.y) < 5));
+
+        enemies.push({
+            x: x,
+            y: y,
+            speed: 0.5 + level * 0.1,
+            dir: floor(random(4)) // 0: up, 1: right, 2: down, 3: left
+        });
     }
-  }
 }
 
 function draw() {
-  if (!spelActief) return;
-  
-  beweegVijanden();
-  
-  // Wis canvas
-  background(0);
-  
-  // Teken doolhof
-  tekenDoolhof();
-  
-  // Teken doel
-  tekenDoel();
-  
-  // Teken vijanden
-  tekenVijanden();
-  
-  // Teken speler
-  tekenSpeler();
-  
-  // Teken score
-  tekenScore();
-}
+    background(bgColor);
 
-function tekenDoolhof() {
-  for (let y = 0; y < doolhof.length; y++) {
-    for (let x = 0; x < doolhof[y].length; x++) {
-      if (doolhof[y][x] === 1) {
-        fill(kleuren.muur);
-      } else {
-        fill(kleuren.pad);
-      }
-      rect(x * tegelGrootte, y * tegelGrootte, tegelGrootte, tegelGrootte);
+    // Draw grid
+    for (let x = 0; x < gridSize; x++) {
+        for (let y = 0; y < gridSize; y++) {
+            // Draw subtle grid lines
+            noFill();
+            stroke(60);
+            rect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
     }
-  }
-}
 
-function tekenDoel() {
-  fill(kleuren.doel);
-  ellipse(
-    doelPositie.x * tegelGrootte + tegelGrootte / 2,
-    doelPositie.y * tegelGrootte + tegelGrootte / 2,
-    speler.grootte
-  );
-}
+    // Draw walls
+    fill(wallColor);
+    noStroke();
+    for (let wall of walls) {
+        rect(wall.x * tileSize, wall.y * tileSize, tileSize, tileSize);
+    }
 
-function tekenVijanden() {
-  fill(kleuren.vijand);
-  for (let vijand of vijanden) {
-    ellipse(
-      vijand.x * tegelGrootte + tegelGrootte / 2,
-      vijand.y * tegelGrootte + tegelGrootte / 2,
-      vijand.grootte
+    // Draw coins
+    fill(coinColor);
+    for (let coin of coins) {
+        ellipse(
+            coin.x * tileSize + tileSize/2,
+            coin.y * tileSize + tileSize/2,
+            tileSize/2
+        );
+    }
+
+    // Draw enemies
+    fill(enemyColor);
+    for (let enemy of enemies) {
+        ellipse(
+            enemy.x * tileSize + tileSize/2,
+            enemy.y * tileSize + tileSize/2,
+            tileSize * 0.8
+        );
+    }
+
+    // Draw player
+    fill(playerColor);
+    rect(
+        player.x * tileSize + tileSize * 0.1,
+        player.y * tileSize + tileSize * 0.1,
+        tileSize * 0.8,
+        tileSize * 0.8,
+        5
     );
-  }
+
+    // Update and move entities
+    if (gameState === "playing") {
+        updatePlayer();
+        updateEnemies();
+        checkCollisions();
+    }
+
+    // Draw UI
+    drawUI();
+
+    // Game over or win screens
+    if (gameState === "gameover") {
+        drawGameOver();
+    } else if (gameState === "won") {
+        drawWinScreen();
+    }
 }
 
-function tekenSpeler() {
-  fill(kleuren.speler);
-  ellipse(
-    speler.x * tegelGrootte + tegelGrootte / 2,
-    speler.y * tegelGrootte + tegelGrootte / 2,
-    speler.grootte
-  );
+function updatePlayer() {
+    // Continuous movement when key is held
+    if (millis() - player.lastMove > player.moveDelay) {
+        let newX = player.x + player.moveDir.x;
+        let newY = player.y + player.moveDir.y;
+
+        if (!isWall(newX, newY)) {
+            player.x = newX;
+            player.y = newY;
+            player.lastMove = millis();
+        } else {
+            // Stop when hitting a wall
+            player.moveDir = {x: 0, y: 0};
+        }
+    }
 }
 
-function tekenScore() {
-  fill(kleuren.tekst);
-  textSize(20);
-  text(`Score: ${score}`, 20, 30);
+function updateEnemies() {
+    for (let enemy of enemies) {
+        // Simple AI: move in current direction until hitting a wall, then change direction
+        let newX = enemy.x;
+        let newY = enemy.y;
+
+        // Calculate movement based on direction
+        if (enemy.dir === 0) newY -= enemy.speed; // Up
+        else if (enemy.dir === 1) newX += enemy.speed; // Right
+        else if (enemy.dir === 2) newY += enemy.speed; // Down
+        else if (enemy.dir === 3) newX -= enemy.speed; // Left
+
+        // Check if new position is valid (not a wall)
+        if (!isWall(floor(newX), floor(newY))) {
+            enemy.x = newX;
+            enemy.y = newY;
+        } else {
+            // Change direction when hitting a wall
+            enemy.dir = floor(random(4));
+        }
+    }
+}
+
+function checkCollisions() {
+    // Check coin collection
+    for (let i = coins.length - 1; i >= 0; i--) {
+        if (dist(player.x, player.y, coins[i].x, coins[i].y) < 1) {
+            score += coins[i].value;
+            coins.splice(i, 1);
+        }
+    }
+
+    // Check enemy collisions
+    for (let enemy of enemies) {
+        if (dist(player.x, player.y, enemy.x, enemy.y) < 1) {
+            gameState = "gameover";
+        }
+    }
+
+    // Check if level is complete (all coins collected)
+    if (coins.length === 0) {
+        level++;
+        generateLevel();
+
+        // Win condition
+        if (level > 5) {
+            gameState = "won";
+        }
+    }
+}
+
+function isWall(x, y) {
+    for (let wall of walls) {
+        if (wall.x === floor(x) && wall.y === floor(y)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function keyPressed() {
+    // Set movement direction based on arrow keys
+    if (keyCode === UP_ARROW) {
+        player.moveDir = {x: 0, y: -1};
+    } else if (keyCode === RIGHT_ARROW) {
+        player.moveDir = {x: 1, y: 0};
+    } else if (keyCode === DOWN_ARROW) {
+        player.moveDir = {x: 0, y: 1};
+    } else if (keyCode === LEFT_ARROW) {
+        player.moveDir = {x: -1, y: 0};
+    } else if (key === 'r' || key === 'R') {
+        // Reset game
+        level = 1;
+        score = 0;
+        resetGame();
+    }
+
+    // Prevent default behavior
+    return false;
+}
+
+function drawUI() {
+    // Score display
+    fill(255);
+    textSize(20);
+    textAlign(LEFT, TOP);
+    text(`Score: ${score}`, 10, 10);
+
+    // Level display
+    textAlign(RIGHT, TOP);
+    text(`Level: ${level}/5`, width - 10, 10);
+
+    // Instructions
+    textSize(14);
+    textAlign(LEFT, BOTTOM);
+    text("Arrow keys to move", 10, height - 10);
+}
+
+function drawGameOver() {
+    // Dark overlay
+    fill(0, 0, 0, 200);
+    rect(0, 0, width, height);
+
+    // Game over text
+    fill(255, 50, 50);
+    textSize(48);
+    textAlign(CENTER, CENTER);
+    text("GAME OVER", width/2, height/2 - 40);
+
+    // Score
+    fill(255);
+    textSize(24);
+    text(`Final Score: ${score}`, width/2, height/2 + 20);
+
+    // Restart instructions
+    textSize(18);
+    text("Press R to restart", width/2, height/2 + 60);
+}
+
+function drawWinScreen() {
+    // Dark overlay
+    fill(0, 0, 0, 200);
+    rect(0, 0, width, height);
+
+    // Win text
+    fill(50, 255, 50);
+    textSize(48);
+    textAlign(CENTER, CENTER);
+    text("YOU WON!", width/2, height/2 - 40);
+
+    // Score
+    fill(255);
+    textSize(24);
+    text(`Final Score: ${score}`, width/2, height/2 + 20);
+
+    // Restart instructions bluh  bluh
+    textSize(18);
+    text("Press R to restart", width/2, height/2 + 60);
 }
