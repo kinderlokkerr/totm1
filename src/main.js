@@ -1,5 +1,6 @@
 
 
+
 let player;
 let gridSize = 20;
 let tileSize;
@@ -33,7 +34,7 @@ function preload() {
 function setup() {
     createCanvas(600, 600);
 
-
+ 
     console.log("Player image status:", playerImg);
     if (playerImg) {
         console.log("Image dimensions:", playerImg.width, "x", playerImg.height);
@@ -61,10 +62,10 @@ function resetGame() {
         moveDelay: 50 
     };
 
-
+    
     generateLevel();
 
-
+   
     gameState = "playing";
 }
 
@@ -124,10 +125,10 @@ function generateLevel() {
 function draw() {
     background(bgColor);
 
-    
+   
     for (let x = 0; x < gridSize; x++) {
         for (let y = 0; y < gridSize; y++) {
-           
+            
             noFill();
             stroke(60);
             rect(x * tileSize, y * tileSize, tileSize, tileSize);
@@ -161,7 +162,7 @@ function draw() {
         );
     }
 
-   
+    
     if (imageLoaded && playerImg && playerImg.width > 0) {
         try {
             imageMode(CENTER);
@@ -180,7 +181,7 @@ function draw() {
         drawPlayerFallback();
     }
 
-    
+
     if (gameState === "playing") {
         updatePlayer();
         updateEnemies();
@@ -211,7 +212,7 @@ function drawPlayerFallback() {
 }
 
 function updatePlayer() {
-   
+    
     if (millis() - player.lastMove > player.moveDelay) {
         let newX = player.x + player.moveDir.x;
         let newY = player.y + player.moveDir.y;
@@ -229,13 +230,13 @@ function updatePlayer() {
 
 function updateEnemies() {
     for (let enemy of enemies) {
-       
+        
         let newX = enemy.x;
         let newY = enemy.y;
 
-    
+        
         if (enemy.dir === 0) newY -= enemy.speed; 
-        else if (enemy.dir === 1) newX += enemy.speed;
+        else if (enemy.dir === 1) newX += enemy.speed; 
         else if (enemy.dir === 2) newY += enemy.speed; 
         else if (enemy.dir === 3) newX -= enemy.speed; 
 
@@ -315,11 +316,11 @@ function drawUI() {
     textAlign(LEFT, TOP);
     text(`Score: ${score}`, 10, 10);
 
-   
+    
     textAlign(RIGHT, TOP);
     text(`Level: ${level}/5`, width - 10, 10);
 
-   
+    
     textSize(14);
     textAlign(LEFT, BOTTOM);
     text("Arrow keys to move", 10, height - 10);
@@ -330,18 +331,18 @@ function drawGameOver() {
     fill(0, 0, 0, 200);
     rect(0, 0, width, height);
 
-   
+    
     fill(255, 50, 50);
     textSize(48);
     textAlign(CENTER, CENTER);
     text("GAME OVER", width/2, height/2 - 40);
 
-   
+    
     fill(255);
     textSize(24);
     text(`Final Score: ${score}`, width/2, height/2 + 20);
 
-   
+    
     textSize(18);
     text("Press R to restart", width/2, height/2 + 60);
 }
@@ -351,18 +352,18 @@ function drawWinScreen() {
     fill(0, 0, 0, 200);
     rect(0, 0, width, height);
 
-   
+    
     fill(50, 255, 50);
     textSize(48);
     textAlign(CENTER, CENTER);
     text("YOU WON!", width/2, height/2 - 40);
 
-   
+    
     fill(255);
     textSize(24);
     text(`Final Score: ${score}`, width/2, height/2 + 20);
 
-   
+    
     textSize(18);
     text("Press R to restart", width/2, height/2 + 60);
 }
