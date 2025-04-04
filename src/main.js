@@ -20,6 +20,10 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
+        enemyImg = loadImage('enemy.png',
+            () => debugInfo = "Image loaded",
+            () => debugInfo = "Image failed to load"
+        );
         wallImg = loadImage('Filler.jpg');
     } catch (e) {
         debugInfo = "Preload error: " + e;
