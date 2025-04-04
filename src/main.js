@@ -20,7 +20,7 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
-        wallImg = loadImage('37af6b77687b5b32ff0a00725898ccac.jpg');
+        wallImg = loadImage('muur.jpg');
     } catch (e) {
         debugInfo = "Preload error: " + e;
     }
