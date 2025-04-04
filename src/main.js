@@ -6,7 +6,7 @@ let enemies = [];
 let walls = [];
 let level = 1;
 let score = 0;
-let gameState = "menu";
+let gameState = "menu"; 
 let playerImg;
 let wallImg;
 let bgColor, wallColor, coinColor, enemyColor;
@@ -22,7 +22,7 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
-        wallImg = loadImage('Filler.jpg');
+        wallImg = loadImage('muur.jpg');
         bgMusic = loadSound('muziek.mp4');
     } catch (e) {
         debugInfo = "Preload error: " + e;
@@ -37,14 +37,13 @@ function setup() {
     coinColor = color(255, 255, 100);
     enemyColor = color(255, 50, 50);
     
-    
+
     button = createButton('Start Game');
     button.position(width/2 - 50, height/2 + 50);
     button.size(100, 40);
     button.style('font-size', '16px');
     button.mousePressed(startGame);
     button.hide(); 
-    
     setupMenu();
 }
 
@@ -222,12 +221,12 @@ function drawMenu() {
     fill(50, 150, 255);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("Mask of Tomb", width/2, height/2 - 80);
+    text("MAZE GAME", width/2, height/2 - 80);
     
     fill(255);
     textSize(24);
     text("Collect coins and avoid enemies", width/2, height/2 - 20);
-    text("Break walls by hitting them alot of times", width/2, height/2 + 20);
+    text("Break walls by hitting them 4 times", width/2, height/2 + 20);
     
 
 }
