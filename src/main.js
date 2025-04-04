@@ -8,6 +8,7 @@ let level = 1;
 let score = 0;
 let gameState = "playing";
 let playerImg;
+let wallImg;
 let bgColor, wallColor, coinColor, enemyColor;
 let debugInfo = "Initializing...";
 let wallHits = {};
@@ -19,6 +20,7 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
+        wallImg = loadImage('37af6b77687b5b32ff0a00725898ccac.jpg');
     } catch (e) {
         debugInfo = "Preload error: " + e;
     }
@@ -109,10 +111,21 @@ function draw() {
         textSize(12);
         text(debugInfo, 10, 20);
 
-        fill(wallColor);
-        noStroke();
-        for (let wall of walls) {
-            rect(wall.x * tileSize, wall.y * tileSize, tileSize, tileSize);
+        if (wallImg && wallImg.width > 0) {
+            for (let wall of walls) {
+                imageMode(CORNER);
+                image(wallImg, 
+                     wall.x * tileSize, 
+                     wall.y * tileSize, 
+                     tileSize, 
+                     tileSize);
+            }
+        } else {
+            fill(wallColor);
+            noStroke();
+            for (let wall of walls) {
+                rect(wall.x * tileSize, wall.y * tileSize, tileSize, tileSize);
+            }
         }
 
         fill(coinColor);
