@@ -6,13 +6,15 @@ let enemies = [];
 let walls = [];
 let level = 1;
 let score = 0;
-let gameState = "playing";
+let gameState = "menu"; // Changed from "playing" to "menu"
 let playerImg;
 let wallImg;
 let bgColor, wallColor, coinColor, enemyColor;
 let debugInfo = "Initializing...";
 let wallHits = {};
 let lastHitTime = 0;
+let bgMusic;
+let button;
 
 function preload() {
     try {
@@ -20,7 +22,8 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
-        wallImg = loadImage('muur.jpg');
+        wallImg = loadImage('Filler.jpg');
+        bgMusic = loadSound('muziek.mp4');
     } catch (e) {
         debugInfo = "Preload error: " + e;
     }
@@ -33,7 +36,33 @@ function setup() {
     wallColor = color(70, 70, 90);
     coinColor = color(255, 255, 100);
     enemyColor = color(255, 50, 50);
+    
+    
+    button = createButton('Start Game');
+    button.position(width/2 - 50, height/2 + 50);
+    button.size(100, 40);
+    button.style('font-size', '16px');
+    button.mousePressed(startGame);
+    button.hide(); 
+    
+    setupMenu();
+}
+
+function setupMenu() {
+    gameState = "menu";
+    button.show();
+    if (bgMusic && !bgMusic.isPlaying()) {
+        bgMusic.loop();
+    }
+}
+
+function startGame() {
+    gameState = "playing";
+    button.hide();
     resetGame();
+    if (bgMusic && !bgMusic.isPlaying()) {
+        bgMusic.loop();
+    }
 }
 
 function resetGame() {
@@ -49,7 +78,6 @@ function resetGame() {
         wallHits = {};
         lastHitTime = 0;
         generateLevel();
-        gameState = "playing";
     } catch (e) {
         debugInfo = "Reset error: " + e;
     }
@@ -107,6 +135,12 @@ function generateLevel() {
 function draw() {
     try {
         background(bgColor);
+        
+        if (gameState === "menu") {
+            drawMenu();
+            return;
+        }
+
         fill(255);
         textSize(12);
         text(debugInfo, 10, 20);
@@ -180,6 +214,22 @@ function draw() {
     } catch (e) {
         debugInfo = "Draw error: " + e;
     }
+}
+
+function drawMenu() {
+    fill(0, 0, 0, 200);
+    rect(0, 0, width, height);
+    fill(50, 150, 255);
+    textSize(48);
+    textAlign(CENTER, CENTER);
+    text("MAZE GAME", width/2, height/2 - 80);
+    
+    fill(255);
+    textSize(24);
+    text("Collect coins and avoid enemies", width/2, height/2 - 20);
+    text("Break walls by hitting them alot of times", width/2, height/2 + 20);
+    
+
 }
 
 function updatePlayer() {
@@ -270,6 +320,8 @@ function isWall(x, y) {
 }
 
 function keyPressed() {
+    if (gameState === "menu") return;
+    
     if (keyCode === UP_ARROW) {
         tryHitWall(player.x, player.y - 1);
         player.moveDir = {x: 0, y: -1};
@@ -347,6 +399,11 @@ function drawGameOver() {
     text(`Final Score: ${score}`, width/2, height/2 + 20);
     textSize(18);
     text("Press R to restart", width/2, height/2 + 60);
+    
+    button.position(width/2 - 50, height/2 + 100);
+    button.html("Menu");
+    button.mousePressed(setupMenu);
+    button.show();
 }
 
 function drawWinScreen() {
@@ -361,4 +418,9 @@ function drawWinScreen() {
     text(`Final Score: ${score}`, width/2, height/2 + 20);
     textSize(18);
     text("Press R to restart", width/2, height/2 + 60);
+    
+    button.position(width/2 - 50, height/2 + 100);
+    button.html("Menu");
+    button.mousePressed(setupMenu);
+    button.show();
 }
