@@ -6,7 +6,7 @@ let enemies = [];
 let walls = [];
 let level = 1;
 let score = 0;
-let gameState = "menu"; // Changed from "playing" to "menu"
+let gameState = "menu";
 let playerImg;
 let wallImg;
 let bgColor, wallColor, coinColor, enemyColor;
