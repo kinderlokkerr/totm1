@@ -222,7 +222,7 @@ function drawMenu() {
     fill(50, 150, 255);
     textSize(48);
     textAlign(CENTER, CENTER);
-    text("MAZE GAME", width/2, height/2 - 80);
+    text("Mask of Tomb", width/2, height/2 - 80);
     
     fill(255);
     textSize(24);
