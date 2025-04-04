@@ -332,7 +332,7 @@ function drawUI() {
     text(`Level: ${level}/5`, width - 10, 10);
     textSize(14);
     textAlign(LEFT, BOTTOM);
-    text("Arrow keys to move", 10, height - 10);
+    text("Arrow keys to move. Hit the wall 4 times to break it.", 10, height - 10);
 }
 
 function drawGameOver() {
