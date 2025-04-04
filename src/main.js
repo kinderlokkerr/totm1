@@ -20,10 +20,6 @@ function preload() {
             () => debugInfo = "Image loaded",
             () => debugInfo = "Image failed to load"
         );
-        enemyImg = loadImage('enemy.png',
-            () => debugInfo = "Image loaded",
-            () => debugInfo = "Image failed to load"
-        );
         wallImg = loadImage('Filler.jpg');
     } catch (e) {
         debugInfo = "Preload error: " + e;
@@ -141,28 +137,14 @@ function draw() {
             );
         }
 
-        if (enemyImg && enemyImg.width > 0) {
-            for (let enemy of enemies) {
-                imageMode(CORNER);
-                image(enemyImg,
-                    enemy.x * tileSize,
-                    enemy.y * tileSize,
-                    tileSize,
-                    tileSize);
-            }
-        } else {
-            fill(enemyColor);
-            for (let enemy of enemies) {
-                rect(
-                    enemy.x * tileSize,
-                    enemy.y * tileSize,
-                    tileSize,
-                    tileSize,
-                    5
-                );
-            }
+        fill(enemyColor);
+        for (let enemy of enemies) {
+            ellipse(
+                enemy.x * tileSize + tileSize/2,
+                enemy.y * tileSize + tileSize/2,
+                tileSize * 0.6
+            );
         }
-       
 
         if (playerImg && playerImg.width > 0) {
             imageMode(CENTER);
