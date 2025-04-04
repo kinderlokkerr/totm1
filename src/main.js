@@ -141,14 +141,28 @@ function draw() {
             );
         }
 
-        fill(enemyColor);
-        for (let enemy of enemies) {
-            ellipse(
-                enemy.x * tileSize + tileSize/2,
-                enemy.y * tileSize + tileSize/2,
-                tileSize * 0.6
-            );
+        if (enemyImg && enemyImg.width > 0) {
+            for (let enemy of enemies) {
+                imageMode(CORNER);
+                image(enemyImg,
+                    enemy.x * tileSize,
+                    enemy.y * tileSize,
+                    tileSize,
+                    tileSize);
+            }
+        } else {
+            fill(enemyColor);
+            for (let enemy of enemies) {
+                rect(
+                    enemy.x * tileSize,
+                    enemy.y * tileSize,
+                    tileSize,
+                    tileSize,
+                    5
+                );
+            }
         }
+       
 
         if (playerImg && playerImg.width > 0) {
             imageMode(CENTER);
